@@ -28,12 +28,12 @@ struct LOW
 template<LedType ledType>
 struct Level 
 {
-    constexpr bool Low() 
+    constexpr bool Low() const noexcept 
     {
         return LOW<ledType>::value;
     }
 
-    constexpr bool Hight() 
+    constexpr bool Hight() const noexcept
     {
         return HIGH<ledType>::value;
     }

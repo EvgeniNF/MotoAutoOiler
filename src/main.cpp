@@ -10,16 +10,45 @@ using LedIndicator = indicator::LedIndicator<config::LED_RED,
                             config::LED_COMMON, 
                             indicator::LedType::CommonCathode>;
 
-void task_blick_led(void* ptr) 
+enum class Mode 
 {
-    auto ledIndicator = reinterpret_cast<LedIndicator*>(ptr);
+    Off,
+    Pumping,
+    Mileage_Manual,
+    Mileage_Rain
+};
+
+enum class PumpState 
+{
+    On,
+    Off
+};
+
+struct IndicatorTaskParameters 
+{
+    LedIndicator indicator;
+    Mode mode;
+    PumpState pump1;
+    PumpState pump2;
+};
+
+void indicator_task(void* ptr) 
+{
+    auto taskParameters = reinterpret_cast<IndicatorTaskParameters*>(ptr);
 
     while (true)
     {
-        ledIndicator->onBlue();
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
-        ledIndicator->allOff();
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        switch (taskParameters->mode)
+        {
+        case Mode::Pumping:
+            break;
+        case Mode::Mileage_Manual:
+            break;
+        case Mode::Mileage_Rain:
+            break;
+        case Mode::Off:
+            break;
+        }
     }
     
 
@@ -27,6 +56,6 @@ void task_blick_led(void* ptr)
 
 extern "C" void app_main() 
 {
-    LedIndicator ledIndicator;
-    xTaskCreate(task_blick_led, "Task.Blink", 1000, &ledIndicator, 1, nullptr);
+    IndicatorTaskParameters indicatorTaskParameters;
+    xTaskCreate(indicator_task, "Task.Indicator", 1000, &indicatorTaskParameters, 5, nullptr);
 }
