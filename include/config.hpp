@@ -2,6 +2,8 @@
 
 #include <driver/gpio.h>
 
+#define DEBUG
+
 namespace config 
 {
 
@@ -12,10 +14,10 @@ using GpioPin = gpio_num_t;
 static constexpr GpioPin PUMP_1 = GPIO_NUM_0;  /// <<- Oil pump number 1
 static constexpr GpioPin PUMP_2 = GPIO_NUM_0;  /// <<- Oil pump number 2
 
-static constexpr GpioPin LED_RED =    GPIO_NUM_0; /// <<- Led output red
-static constexpr GpioPin LED_GREAN =  GPIO_NUM_0; /// <<- Led output grean
-static constexpr GpioPin LED_BLUE =   GPIO_NUM_0; /// <<- Led output blue
-static constexpr GpioPin LED_COMMON = GPIO_NUM_0; /// <<- Led output common
+static constexpr GpioPin LED_RED =    GPIO_NUM_25; /// <<- Led output red
+static constexpr GpioPin LED_GREAN =  GPIO_NUM_26; /// <<- Led output grean
+static constexpr GpioPin LED_BLUE =   GPIO_NUM_27; /// <<- Led output blue
+static constexpr GpioPin LED_COMMON = GPIO_NUM_14; /// <<- Led output common
 
 /// ----------------------------------------------------------------------- ///
 
