@@ -49,14 +49,13 @@ class IndicatorTask
     void run();
 
    private:
-    void indicateWrokPumpGreen() const noexcept;
-
-    void indicateWrokPumpBlue() const noexcept;
+    void stopAllTimers() noexcept;
 
    private:
     DeviceState* m_state;
     LedIndicator m_indicator;
-    Timer m_timer;
+    Timer m_timerBlinkBlue;
+    Timer m_timerBlinkGreen;
 };
 
 

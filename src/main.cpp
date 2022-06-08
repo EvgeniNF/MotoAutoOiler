@@ -9,5 +9,5 @@ extern "C" void app_main()
 {
     DeviceState state;
     IndicatorTask task(state);
-    task.run();
+    xTaskCreate(indicator_task, "Indicator", 1000u, &task, 5, nullptr);
 }

@@ -2,7 +2,18 @@
 
 void indicator_task(void* indicatorTaskPtr) noexcept 
 {
-    
+    auto task = reinterpret_cast<IndicatorTask*>(indicatorTaskPtr);
+    while(true)
+    {
+        task->run();
+    }
+}
+
+IndicatorTask::IndicatorTask(DeviceState& state) :
+m_state(&state), m_indicator() 
+{
+    m_timerBlinkBlue = xTimerCreate("Blink.Blue", 500, pdTRUE, &m_indicator, LedIndicator::taskBlinkBlue); 
+    m_timerBlinkGreen = xTimerCreate("Blink.Grean", 500, pdTRUE, &m_indicator, LedIndicator::taskBlinkGreen); 
 }
 
 
@@ -21,6 +32,7 @@ void IndicatorTask::run()
             m_indicator.onBlue();
             break;
         }
+        stopAllTimers();
         break;
 
     case Mode::Rain:
@@ -34,27 +46,33 @@ void IndicatorTask::run()
             m_indicator.onGreen();
             break;
         }
+        stopAllTimers();
         break;
 
     case Mode::ForcedGreasing:
         switch (m_state->state)
         {
-        case State::Stopped: /// blink green
+        case State::Stopped: 
+            xTimerStart(m_timerBlinkGreen, 0);
             break;
         
-        case State::Greasing: /// indicate work pump
+        case State::Greasing: 
+            xTimerStop(m_timerBlinkGreen, 0);
             m_indicator.onBlue();
             break;
         }
+        stopAllTimers();
         break;
     
     case Mode::Pumping:
         switch (m_state->state)
         {
-        case State::Stopped: /// blink blue
+        case State::Stopped: 
+            xTimerStart(m_timerBlinkBlue, 0);
             break;
         
-        case State::Greasing: /// indicate work pump
+        case State::Greasing: 
+            xTimerStop(m_timerBlinkBlue, 0);
             m_indicator.onGreen();
             break;
         }
@@ -62,32 +80,13 @@ void IndicatorTask::run()
     
     case Mode::Off:
         m_indicator.allOff();
+        stopAllTimers();
         break;
     }
 }
 
-void IndicatorTask::indicateWrokPumpGreen() const noexcept 
+void IndicatorTask::stopAllTimers() noexcept 
 {
-    switch (m_state->pumpState) 
-    {
-        case PumpState::On:
-            m_indicator.onGreen();
-            break;
-        case PumpState::Off:
-            m_indicator.onBlue();
-            break;
-    }
-}
-
-void IndicatorTask::indicateWrokPumpBlue() const noexcept 
-{
-    switch (m_state->pumpState) 
-    {
-        case PumpState::On:
-            m_indicator.onBlue();
-            break;
-        case PumpState::Off:
-            m_indicator.onGreen();
-            break;
-    }
+    xTimerStop(m_timerBlinkBlue, 0);
+    xTimerStop(m_timerBlinkGreen, 0);
 }
