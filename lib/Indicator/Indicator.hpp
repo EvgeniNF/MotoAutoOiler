@@ -1,5 +1,6 @@
 #pragma once
 
+#include <freertos/FreeRTOS.h>
 #include <driver/gpio.h>
 #include <logs.hpp>
 
@@ -42,7 +43,7 @@ struct Level
 
 using GpioPin = gpio_num_t;
 
-template<GpioPin redPin, GpioPin greanPin,
+template<GpioPin redPin, GpioPin greenPin,
          GpioPin bluePin, GpioPin commonPin, 
          LedType ledType>
 class LedIndicator 
@@ -51,22 +52,22 @@ class LedIndicator
      
      LedIndicator() 
      {
-        gpio_pad_select_gpio(redPin);
-        gpio_set_direction(redPin, GPIO_MODE_INPUT_OUTPUT);
+         gpio_pad_select_gpio(redPin);
+         gpio_set_direction(redPin, GPIO_MODE_INPUT_OUTPUT);
 
-        gpio_pad_select_gpio(greanPin);
-        gpio_set_direction(greanPin, GPIO_MODE_INPUT_OUTPUT);
+         gpio_pad_select_gpio(greenPin);
+         gpio_set_direction(greenPin, GPIO_MODE_INPUT_OUTPUT);
         
-        gpio_pad_select_gpio(bluePin);
-        gpio_set_direction(bluePin, GPIO_MODE_INPUT_OUTPUT);
+         gpio_pad_select_gpio(bluePin);
+         gpio_set_direction(bluePin, GPIO_MODE_INPUT_OUTPUT);
         
-        gpio_pad_select_gpio(commonPin);
-        gpio_set_direction(commonPin, GPIO_MODE_INPUT_OUTPUT);
+         gpio_pad_select_gpio(commonPin);
+         gpio_set_direction(commonPin, GPIO_MODE_INPUT_OUTPUT);
 
-        gpio_set_level(redPin, m_level.Low());
-        gpio_set_level(greanPin, m_level.Low());
-        gpio_set_level(bluePin, m_level.Low());
-        gpio_set_level(commonPin, m_level.Low());
+         gpio_set_level(redPin, m_level.Low());
+         gpio_set_level(greenPin, m_level.Low());
+         gpio_set_level(bluePin, m_level.Low());
+         gpio_set_level(commonPin, m_level.Low());
      };
 
      LedIndicator(LedIndicator&) = default;
@@ -77,40 +78,92 @@ class LedIndicator
     public:
      void onBlue() const noexcept 
      {
-        gpio_set_level(redPin, m_level.Low());
-        gpio_set_level(greanPin, m_level.Low());
-        gpio_set_level(bluePin, m_level.Hight());
-        LOG_INFO("Led.Indicator", "On blue led");
+         gpio_set_level(redPin, m_level.Low());
+         gpio_set_level(greenPin, m_level.Low());
+         gpio_set_level(bluePin, m_level.Hight());
+         LOG_INFO("Led.Indicator", "On blue led");
      }
      
-     void onGrean() const noexcept 
+     void onGreen() const noexcept 
      {
-        gpio_set_level(redPin, m_level.Low());
-        gpio_set_level(greanPin, m_level.Hight());
-        gpio_set_level(bluePin, m_level.Low());
-        LOG_INFO("Led.Indicator", "On gren led");
+         gpio_set_level(redPin, m_level.Low());
+         gpio_set_level(greenPin, m_level.Hight());
+         gpio_set_level(bluePin, m_level.Low());
+         LOG_INFO("Led.Indicator", "On gren led");
      }
      
      void onRed() const noexcept 
      {
-        gpio_set_level(redPin, m_level.Hight());
-        gpio_set_level(greanPin, m_level.Low());
-        gpio_set_level(bluePin, m_level.Low());
-        LOG_INFO("Led.Indicator", "On red led");
+         gpio_set_level(redPin, m_level.Hight());
+         gpio_set_level(greenPin, m_level.Low());
+         gpio_set_level(bluePin, m_level.Low());
+         LOG_INFO("Led.Indicator", "On red led");
      }
 
      void allOff() const noexcept 
      {
-        gpio_set_level(redPin, m_level.Low());
-        gpio_set_level(greanPin, m_level.Low());
-        gpio_set_level(bluePin, m_level.Low());
-        LOG_INFO("Led.Indicator", "Off all");
+         gpio_set_level(redPin, m_level.Low());
+         gpio_set_level(greenPin, m_level.Low());
+         gpio_set_level(bluePin, m_level.Low());
+         LOG_INFO("Led.Indicator", "Off all");
+     }
+     
+     void blinkBlue() const noexcept
+     {
+         if (gpio_get_level(bluePin) == m_level.Low()) 
+         {
+             onBlue();
+         } 
+         else 
+         {
+             allOff();
+         }
+     }
+
+     void blinkRed() const noexcept
+     {
+         if (gpio_get_level(redPin) == m_level.Low()) 
+         {
+             onRed();
+         } 
+         else 
+         {
+             allOff();
+         }
+     }
+     
+     void blinkGreen() const noexcept
+     {
+         if (gpio_get_level(greenPin) == m_level.Low()) 
+         {
+             onGreen();
+         } 
+         else 
+         {
+             allOff();
+         }
+     }
+
+     static void taskBlinkBlue(void* indicator) noexcept 
+     {
+         auto object = reinterpret_cast<LedIndicator*>(indicator);
+         object->blinkBlue();
+     }
+
+     static void taskBlinkRed(void* indicator) noexcept 
+     {
+         auto object = reinterpret_cast<LedIndicator*>(indicator);
+         object->blinkRed();
+     }
+
+     static void taskBlinkGreen(void* indicator) noexcept 
+     {
+         auto object = reinterpret_cast<LedIndicator*>(indicator);
+         object->blinkGreen();
      }
 
     private:
       Level<ledType> m_level;
-
 };
 
 }
-
