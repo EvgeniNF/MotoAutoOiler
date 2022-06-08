@@ -25,10 +25,17 @@ enum class State
     Greasing
 };
 
+enum class PumpState
+{
+    On,
+    Off,
+};
+
 struct DeviceState
 {
     Mode mode   { Mode::Off };
     State state { State::Stopped };
+    PumpState pumpState { PumpState::Off };
 };
 
 
@@ -36,12 +43,17 @@ using Timer = TimerHandle_t;
 
 class IndicatorTask
 {
-    public:
-    IndicatorTask(DeviceState& state) : m_state(&state) {};
+   public:
+    IndicatorTask(DeviceState& state);
 
     void run();
 
-    private:
+   private:
+    void indicateWrokPumpGreen() const noexcept;
+
+    void indicateWrokPumpBlue() const noexcept;
+
+   private:
     DeviceState* m_state;
     LedIndicator m_indicator;
     Timer m_timer;
