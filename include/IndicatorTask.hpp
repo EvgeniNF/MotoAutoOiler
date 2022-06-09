@@ -3,6 +3,7 @@
 #include <Indicator.hpp>
 #include "config.hpp"
 #include <freertos/timers.h>
+#include <conditioanl_variable.hpp>
 
 using LedIndicator = indicator::LedIndicator<config::LED_RED,
                             config::LED_GREAN,
@@ -35,7 +36,7 @@ struct DeviceState
 {
     Mode mode   { Mode::Off };
     State state { State::Stopped };
-    PumpState pumpState { PumpState::Off };
+    utils::conditional_variable changeState;
 };
 
 

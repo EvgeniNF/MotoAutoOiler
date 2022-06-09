@@ -3,7 +3,12 @@
 void indicator_task(void* indicatorTaskPtr) noexcept 
 {
     auto task = reinterpret_cast<IndicatorTask*>(indicatorTaskPtr);
-    while(true)
+    
+    if (task == nullptr) 
+    {
+        LOG_ERROR("Indicator.Task", "Task is nullptr");
+    }
+    else 
     {
         task->run();
     }
@@ -19,6 +24,7 @@ m_state(&state), m_indicator()
 
 void IndicatorTask::run() 
 {   
+    m_state->changeState.wait();
     switch (m_state->mode)
     {
     case Mode::Manual:
@@ -57,11 +63,10 @@ void IndicatorTask::run()
             break;
         
         case State::Greasing: 
-            xTimerStop(m_timerBlinkGreen, 0);
             m_indicator.onBlue();
+            stopAllTimers();
             break;
         }
-        stopAllTimers();
         break;
     
     case Mode::Pumping:
@@ -72,7 +77,7 @@ void IndicatorTask::run()
             break;
         
         case State::Greasing: 
-            xTimerStop(m_timerBlinkBlue, 0);
+            stopAllTimers();
             m_indicator.onGreen();
             break;
         }
@@ -87,6 +92,12 @@ void IndicatorTask::run()
 
 void IndicatorTask::stopAllTimers() noexcept 
 {
-    xTimerStop(m_timerBlinkBlue, 0);
-    xTimerStop(m_timerBlinkGreen, 0);
+    if (xTimerIsTimerActive(m_timerBlinkBlue)) 
+    {
+        xTimerStop(m_timerBlinkBlue, 0);
+    }
+    if (xTimerIsTimerActive(m_timerBlinkBlue)) 
+    {
+        xTimerStop(m_timerBlinkGreen, 0);
+    }
 }
