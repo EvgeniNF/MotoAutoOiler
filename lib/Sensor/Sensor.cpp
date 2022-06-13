@@ -31,37 +31,3 @@ uint16_t computeSpeed(uint16_t distance, uint16_t distanceTime) noexcept
     float speed = (distance / distanceTime) * 3600u;
     return static_cast<uint16_t>(std::round(speed));
 }
-
-bool checkSpeed(uint16_t maxSpeed, uint16_t minSpeed, uint16_t actualSpeed) noexcept 
-{
-    if (actualSpeed > maxSpeed || actualSpeed < minSpeed)
-    {
-        return false;
-    }
-    return true;
-}
-
-uint16_t selectInterval(uint16_t value, uint16_t threshValue, uint16_t interval1, uint16_t interval2) noexcept
-{
-    if (value > threshValue)
-    {
-        return interval2;
-    }
-    else 
-    {
-        return interval1;
-    }
-}
-
-uint16_t computeDistanceBetweenImps(uint16_t numOfImpulsbyResulution, uint16_t wheelDistance) noexcept 
-{
-    return wheelDistance / numOfImpulsbyResulution;
-}
-
-uint32_t computeTimePeriod() noexcept
-{
-    static uint32_t previosTime = 0;
-    uint32_t actualTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
-    uint32_t deltaTime = actualTime - previosTime;
-    return deltaTime;
-}

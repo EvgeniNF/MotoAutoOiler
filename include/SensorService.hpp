@@ -4,72 +4,33 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <config.hpp>
-#include <freertos/timers.h>
-
-
-struct Oiling
-{
-    uint16_t actualDistancePump1{0};
-    uint16_t actualDistancePump2{0};
-    uint16_t interval1{0};
-    uint16_t interval2{0};
-    xTimerHandle onTimerPump1;
-    xTimerHandle onTimerPump2;
-};
-
+#include <freertos/queue.h>
 
 struct SensorService
 {
-    uint16_t actualDistancePump1{0};
-    uint16_t actualDistancePump2{0};
-    uint32_t impulsCounter{0};
-    config::OilingParameters* sharedData;
-    xTimerHandle onTimerPump1;
-    xTimerHandle onTimerPump2;
-    xTimerHandle offTimerPump1;
-    xTimerHandle offTimerPump2;
-    xTaskHandle pumpServiceHandle;
+    uint16_t const serviceId;                  /// <<- Unique sevice id 
+    gpio_num_t const sensorPin;                /// <<- Sensor gpio num
+    const uint16_t*  numberImpulsByResolution; /// <<- Numper of impuls
+    const uint16_t*  weelCircle;               /// <<- Moto wheel length
+    xQueueHandle messageQueue;                 /// <<- Responce message queue 
+    uint32_t interruptCounter;                 /// <<- Counter impuls from sensor
 };
 
-static void onTimerPump(void* ptr) noexcept;
+/**
+ * @brief Create a Sensor Service object
+ * 
+ * @param parameters      : Oiling parametrs {weelCircle, numberImpulsByResolution, sensorPin} 
+ * @param serviceMessanger: Queue for request messages 
+ * @param priority        : Task priority
+ * @return xTaskHandle    : Created task hendler
+ */
+[[nodiscard]] xTaskHandle createSensorService(config::OilingParameters const& parameters, 
+                                              xQueueHandle serviceMessanger, 
+                                              uint16_t priority) noexcept;
 
-void oiling(SensorService* data, bool rain) noexcept;
-
-void oilingMode() noexcept;
-
-uint16_t computeRainInterval(uint16_t interval, float rainCoef) noexcept;
-
-static void sensor_service_task(void* ptr) noexcept
-{
-    auto parameters = reinterpret_cast<SensorService*>(ptr);
-
-    while (true)
-    {
-        auto distanceBetweenImpls = computeDistanceBetweenImps(parameters->sharedData->numberOfImpulsByResolution,
-                                                               parameters->sharedData->weelCircle);
-        auto actualDistance = computeDistance(parameters->impulsCounter, distanceBetweenImpls);
-        auto timePeriod = computeTimePeriod();
-        parameters->sharedData->speed = computeSpeed(actualDistance, timePeriod);
-        
-        switch (parameters->sharedData->mode)
-        {
-        case config::Mode::Oiling:
-            if (checkSpeed(parameters->sharedData->maxSpeedOiling, 
-                           parameters->sharedData->minSpeedOiling,
-                           parameters->sharedData->speed))
-            {
-                oiling(parameters);
-            }   
-            break;
-        
-        default:
-            break;
-        }
-
-    }
-}
-
-inline xTaskHandle createSensorService(config::OilingParameters* oilingParameters, xTaskHandle pumpServiceHandle) noexcept
-{
-    return ;
-}
+/**
+ * @brief Handle task compute speed and distance
+ * 
+ * @param ptr: Parameters 
+ */
+static void sensorTaskHandler(void* ptr) noexcept;

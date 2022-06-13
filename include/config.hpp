@@ -83,5 +83,11 @@ struct OilingParameters
     uint16_t numberOfImpulsInPumping{60}; // Количество импульсов за цикл прокачки
 };
 
+struct Message
+{
+    uint16_t serviceId;   /// <<-
+    uint16_t message[];   /// <<-
+};
+
 }
 
