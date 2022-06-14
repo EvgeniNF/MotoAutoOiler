@@ -15,7 +15,7 @@ struct ButtonService
     xTimerHandle doubleClickTimer;             ///
 };
 
-
+uint32_t computePreviosCallTime() noexcept;
 
 void buttonTaskHandler(void* ptr) noexcept;
 
