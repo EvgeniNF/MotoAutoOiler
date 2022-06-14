@@ -17,7 +17,8 @@ void sensorTaskHandler(void* ptr) noexcept
         config::Message message
         {
             .serviceId = parameters->serviceId,
-            .message = {distance, speed}
+            .message = {distance, speed},
+            .sizeMessage = 2
         };
 
         xQueueSend(parameters->messageQueue, &message, 0);

@@ -33,4 +33,4 @@ struct SensorService
  * 
  * @param ptr: Parameters 
  */
-static void sensorTaskHandler(void* ptr) noexcept;
+void sensorTaskHandler(void* ptr) noexcept;

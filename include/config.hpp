@@ -86,7 +86,8 @@ struct OilingParameters
 struct Message
 {
     uint16_t serviceId;   /// <<-
-    uint16_t message[];   /// <<-
+    uint16_t message[5];   /// <<-
+    uint16_t sizeMessage; 
 };
 
 }

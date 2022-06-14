@@ -22,4 +22,4 @@ enum class Commands
 
 [[nodiscard]] xTaskHandle createPumpService(gpio_num_t gpioPump1, gpio_num_t gpioPump2) noexcept;
 
-static void pumpTaskHendler(void* ptr) noexcept;
+void pumpTaskHendler(void* ptr) noexcept;
