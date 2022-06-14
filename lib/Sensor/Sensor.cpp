@@ -18,6 +18,7 @@ void initSensor(gpio_num_t gpioSensor, uint32_t* interruptCounter) noexcept
     gpio_set_intr_type(gpioSensor, GPIO_INTR_NEGEDGE);
     gpio_install_isr_service(ESP_INTR_FLAG_LEVEL2);
     gpio_isr_handler_add(gpioSensor, interruptCallback, interruptCounter);
+    gpio_intr_enable(gpioSensor);
 }
 
 uint16_t computeDistance(uint16_t numOfImpuls, uint16_t distanceBetweenImpuls) noexcept
