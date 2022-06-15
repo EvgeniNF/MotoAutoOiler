@@ -18,6 +18,7 @@ class Volatage
 {
    public: 
     Volatage(uint16_t serviceId, xQueueHandle messageQueue, gpio_num_t gpio, Range range);
+    
     ~Volatage() = default;
 
    public:
@@ -25,7 +26,9 @@ class Volatage
 
    private: 
     bool addValueToBufferFromAnalogPin() noexcept;
+
     bool bufferIsFull() noexcept;
+
     uint16_t computeVoltage() noexcept;
 
    private:
