@@ -17,7 +17,7 @@ void Volatage::run() noexcept
         if (!addValueToBufferFromAnalogPin())
         {
             uint16_t value = computeVoltage();
-            Message message
+            utils::Message message
             {
                 .serviceId = m_serviceId,
                 .data = {value},

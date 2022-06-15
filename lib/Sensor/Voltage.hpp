@@ -3,14 +3,7 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/queue.h>
 #include <Arduino.h>
-
-
-struct Message
-{
-    uint16_t serviceId;
-    uint16_t data[5];
-    uint16_t size;
-};
+#include <Message.hpp>
 
 namespace sensor
 {

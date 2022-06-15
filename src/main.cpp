@@ -2,7 +2,8 @@
 #include <freertos/task.h>
 #include <Voltage.hpp>
 #include <iostream>
-
+#include <Message.hpp>
+#include <Button.hpp>
 
 #define LOG(level, message) std::cout << "[" << level << "] {" << message << "}" << std::endl
 
@@ -12,7 +13,7 @@ void task_message_handler(void* messageQueue)
     auto queue = reinterpret_cast<xQueueHandle*>(messageQueue);
     while (true)
     {
-        Message resiveMessage;
+        utils::Message resiveMessage;
         xQueueReceive(*queue, &resiveMessage, portMAX_DELAY);
         LOG("INFO", "New message: { id:" << resiveMessage.serviceId 
                                          << ", data:" << resiveMessage.data[0] 
@@ -28,9 +29,17 @@ void task_analog_reader(void* messageQueue)
     voltageSensor.run();
 }
 
+void task_button(void* messageQueue)
+{
+    auto queue = reinterpret_cast<xQueueHandle*>(messageQueue);
+    Button button{2, *queue, GPIO_NUM_12};
+    button.run();
+}
+
 extern "C" void app_main() 
 { 
-    static auto queue = xQueueCreate(10, sizeof(Message));
+    static auto queue = xQueueCreate(10, sizeof(utils::Message));
     xTaskCreate(task_message_handler, "Task.MessageHandler", 3024, &queue, 1, nullptr);
     xTaskCreate(task_analog_reader, "Task.AnalogRead", 8000, &queue, 1, nullptr);
+    xTaskCreate(task_button, "Task.Button", 3000, &queue, 1, nullptr);
 }
