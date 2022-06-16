@@ -25,38 +25,102 @@ void Controller::run() noexcept
     {
         utils::Message message;
         xQueueReceive(m_messageQueue, &message, portMAX_DELAY);
-        switch (message.serviceId)
+        switch (static_cast<Devices>(message.serviceId))
         {
-        case 0:
-            std::cout << "Message{ Pump 1 -> " << "Off" <<  "}" << std::endl;
+        case Devices::Pump1:
+            
             break;
-        case 1:
-            std::cout << "Message{ Pump 2 -> " << "Off" <<  "}" << std::endl;
+        case Devices::Pump2:
+            
             break;
-        case 2:
-            std::cout << "Message{ speed sensor -> speed: " << message.data[0] << ", distance: " << message.data[1] <<  "}" << std::endl;
+        case Devices::SpeedSensor:
+            m_storage.speed = message.data[0];
             break;
-        case 3:
-            if (message.data[0] == 0)
-            {
-                std::cout << "Message{ button -> " << "click" <<  "}" << std::endl;
-            } 
-            else if (message.data[0] == 1)
-            {
-                std::cout << "Message{ button -> " << "double click" <<  "}" << std::endl;
-            }
-            else
-            {
-                std::cout << "Message{ button -> " << "hold click" <<  "}" << std::endl;
-            }
+        case Devices::Button:
+            handleButtonMessage(message);
             break;
-        case 4:
-            std::cout << "Message{ voltage sensor -> " << message.data[0] << "}" << std::endl;
+        case Devices::Voltage:
+            m_storage.voltage = message.data[0] / 100;
             break;
         }
         
     }
     
+}
+
+void Controller::handleButtonMessage(utils::Message const& message) noexcept
+{
+    switch (message.data[0])
+    {
+    case 0:         /// <<- click
+        switch (m_storage.mode)
+        {
+        case device::Mode::Oiling:
+            m_storage.mode = device::Mode::OilingRain;
+            m_storage.write(m_storage.mode, device::Parameter::mode);
+            break;
+
+        case device::Mode::OilingRain:
+            m_storage.mode = device::Mode::Oiling;
+            m_storage.write(m_storage.mode, device::Parameter::mode);
+            break;
+
+        case device::Mode::PumpingOn:
+            m_storage.mode = device::Mode::PumpingOff;
+            break;
+        
+        case device::Mode::PumpingOff:
+            m_storage.mode = device::Mode::PumpingOn;
+            break;
+
+        case device::Mode::ForsedPumpingOn:
+            m_storage.mode = device::Mode::PumpingOff;
+            break;
+
+        case device::Mode::ForsedPumpingOff:
+            m_storage.mode = device::Mode::PumpingOn;
+            break;
+        }
+        break;
+    case 1:         /// <<- double click
+        switch (m_storage.mode)
+        {
+        case device::Mode::Off:
+        case device::Mode::ForsedPumpingOn:
+        case device::Mode::ForsedPumpingOff:
+        case device::Mode::Oiling:
+        case device::Mode::OilingRain:
+            m_storage.mode = device::Mode::PumpingOff;
+            m_storage.write(m_storage.mode, device::Parameter::mode);
+            break;
+
+        case device::Mode::PumpingOn:
+        case device::Mode::PumpingOff:
+            m_storage.mode = device::Mode::Oiling;
+            m_storage.write(m_storage.mode, device::Parameter::mode);
+            break;
+        }
+        break;
+    case 2:         /// <<- hold click
+        switch (m_storage.mode)
+        {
+        case device::Mode::PumpingOff:
+        case device::Mode::PumpingOn:
+        case device::Mode::Oiling:
+        case device::Mode::OilingRain:
+            m_storage.mode = device::Mode::ForsedPumpingOff;
+            m_storage.write(m_storage.mode, device::Parameter::mode);
+            break;
+        case device::Mode::ForsedPumpingOn:
+        case device::Mode::ForsedPumpingOff:
+            m_storage.mode = device::Mode::Off;
+            break;
+        case device::Mode::Off:
+            m_storage.mode = device::Mode::Oiling;
+            break;
+        }
+        break;
+    }
 }
 
 void Controller::buttonTask(void* buttonPtr) noexcept

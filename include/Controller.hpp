@@ -12,6 +12,15 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/queue.h>
 
+enum class Devices
+{
+    Pump1,
+    Pump2,
+    SpeedSensor,
+    Button,
+    Voltage
+};
+
 class Controller
 {
    public:
@@ -28,6 +37,9 @@ class Controller
     void run() noexcept; 
 
    private:
+    void handleButtonMessage(utils::Message const& message) noexcept; 
+
+   private:
     xQueueHandle m_messageQueue;
     device::Storage m_storage; 
     device::Pump m_pump1;
@@ -36,4 +48,5 @@ class Controller
     Button m_button;
     sensor::Volatage m_voltageSensor;
     device::Server m_server;
+    device::Mode m_previosMode;
 };

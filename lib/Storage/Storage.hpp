@@ -58,7 +58,12 @@ struct Storage
     uint16_t intervalRoadPump1 {1700};
     uint16_t intervalRoadPump2 {1700};
 
+    uint16_t actualDistancePump1{0};
+    uint16_t actualDistancePump2{0};
+
     float rainCoef{0.0};
+    float voltage{0.0};
+    uint16_t speed{0};
 
     uint16_t pumpingImpulsInterval{1000};
     uint16_t durationImpuls{500};
