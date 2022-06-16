@@ -1,6 +1,7 @@
 #include "Pump.hpp"
 #include <Arduino.h>
 #include <Message.hpp>
+#include <iostream>
 
 namespace device
 {
@@ -33,7 +34,7 @@ void Pump::off() noexcept
         .data = {0},
         .size = 1
     };
-    xQueueSend(m_messageQueue, &message, 0);
+    xQueueSendFromISR(m_messageQueue, &message, 0);
 }
 
 void Pump::changeOnTime(uint16_t timeOn) noexcept
@@ -44,7 +45,7 @@ void Pump::changeOnTime(uint16_t timeOn) noexcept
 
 void Pump::timerOnHandler(void* pumpPtr) noexcept
 {
-    auto pump = reinterpret_cast<Pump*>(pumpPtr);
+    auto pump = reinterpret_cast<Pump*>(pvTimerGetTimerID(pumpPtr));
     pump->off();
 }
 

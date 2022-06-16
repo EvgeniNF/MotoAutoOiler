@@ -11,7 +11,7 @@ namespace device
 class Pump
 {
    public:
-    Pump(uint16_t service, gpio_num_t pin, xQueueHandle messageQueue, uint16_t timeOn);
+    Pump(uint16_t serviceId, gpio_num_t pin, xQueueHandle messageQueue, uint16_t timeOn);
     ~Pump() = default;
 
    public:
