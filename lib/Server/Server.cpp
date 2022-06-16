@@ -1,5 +1,6 @@
 #include "Server.hpp"
 #include <iostream>
+#include <SPIFFS.h>
 
 namespace device
 {
@@ -15,9 +16,9 @@ Server::Server() : m_server(80)
     m_dnsServer.setErrorReplyCode(DNSReplyCode::ServerFailure);
 
     std::cout << m_dnsServer.start(53, "www.motooiler.com", {192, 168, 1, 1}) << std::endl;
-
+    SPIFFS.begin(true);
     m_server.on("/", [this](AsyncWebServerRequest *request){
-        homePage(request);
+        request->send(SPIFFS, "/MainPage.html", "text/html");
     });
 
     m_server.begin();

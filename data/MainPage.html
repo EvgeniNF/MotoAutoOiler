@@ -1,0 +1,86 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title> Moto oiler </title>
+    <meta name="viewport" content="width=device-width, initialscale=1">
+    <style>
+        html{
+            font-family: Helvetica;
+            display: inline-block;
+            margin: 0px auto;
+            text-align: center;
+            color: rgb(2, 44, 11);
+        }
+        .header {
+            background-color: #0d9212;
+            border: none;
+            color: white;
+            text-decoration: none;
+            cursor: pointer;
+            box-shadow:
+            0 1px 4px rgba(23, 179, 57, 0.486),
+            -23px 0 20px -23px rgba(0, 0, 0, .8),
+            23px 0 20px -23px rgba(0, 0, 0, .8),
+            0 0 40px rgba(81, 211, 49, 0.1) inset;
+        }
+        .container {
+            width: 80%;
+            max-width: 550px;
+            margin: 10px auto;
+            padding: 1em;
+            box-shadow:
+            0 1px 4px rgba(23, 179, 57, 0.486),
+            -23px 0 20px -23px rgba(35, 143, 8, 0.253),
+            23px 0 20px -23px rgba(0, 0, 0, .8),
+            0 0 40px rgba(81, 211, 49, 0.1) inset;
+        }
+        
+    </style>
+</head>
+<body>
+    <h1><header class="header" href="/">Moto oiler</header></h1>
+
+    <div class="container"> 
+        Mode: <span id="Mode"></span> 
+        <p>
+            <button class="button" onclick="send(0)">Oiling</button>
+            <button class="button" onclick="send(1)">Rain oiling</button>
+            <button class="button" onclick="send(2)">Pumping</button>
+            <button class="button" onclick="send(3)">Forced pumping</button>
+            <button class="button" onclick="send(4)">Off</button>
+        </p>
+    </div>
+
+    <div class="container"> 
+        Speed: <span id="speed"></span> km/h
+    </div>
+
+    <div class="container"> 
+        Voltage: <span id="distance2"></span> V
+    </div>
+
+    <div class="container"> 
+        Actual distance pump 1: <span id="distance2"></span> m
+    </div>
+
+    <div class="container"> 
+        Actual distance pump 2: <span id="distance1"></span> m
+    </div>
+    
+    <script>
+        setInterval(
+            function getdata(params) {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                        document.getElementById("speed").innerHTML =
+                        this.responseText;
+                     }
+                };
+                xhttp.open("GET", "telemetria", true);
+                xhttp.send();
+            }, 1500)
+    </script>
+</body>
+</html>
