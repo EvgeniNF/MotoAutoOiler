@@ -1,0 +1,18 @@
+{
+    "mode": 0,
+    "numberOfImpulsByResolution": 12,
+    "wheelCircle": 2040,
+    "maxTownSpeed": 80,
+    "minSpeedOiling": 20,
+    "maxSpeedOiling": 180,
+    "intervalTownPump1": 1400,
+    "intervalTownPump2": 1400,
+    "intervalRoadPump1": 1700,
+    "intervalRoadPump2": 1700,
+    "rainCoef": 0.0,
+    "pumpingImpulsInterval": 1000,
+    "durationImpuls": 500,
+    "numberOfImpulsInPumping": 60,
+    "oilLevel": 0,
+    "maxImpulsOil": 0
+}
