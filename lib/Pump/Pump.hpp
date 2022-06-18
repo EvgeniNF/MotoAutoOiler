@@ -15,10 +15,13 @@ class Pump
     ~Pump() = default;
 
    public:
-    void startPuls() noexcept;
+    void startPuls(bool onePuls=true) noexcept;
 
     void changeOnTime(uint16_t timeOn) noexcept;
+
     void changeOffTime(uint16_t timeOn) noexcept;
+
+    void startCountOffTime() noexcept;
 
     void off() noexcept;
 
@@ -30,10 +33,10 @@ class Pump
    private: 
     uint16_t const m_serviceId;
     gpio_num_t const m_pumpGpio;
-    uint16_t m_pulsCounter;
     xQueueHandle m_messageQueue;
     xTimerHandle m_onTimer;
     xTimerHandle m_offTimer;
+    bool m_onePulsFlag = false;
 };
 
 }

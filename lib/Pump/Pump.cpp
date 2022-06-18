@@ -17,13 +17,14 @@ Pump::Pump(uint16_t serviceId, gpio_num_t pin, xQueueHandle messageQueue, uint16
     
     m_offTimer = xTimerCreate("PumpOffTimer", 1000 / portTICK_PERIOD_MS, pdFALSE, this, timerOffHandler);
     utils::assert_null(m_onTimer, "Pump off timer was not create");
-    
+
     pinMode(m_pumpGpio, OUTPUT);
     digitalWrite(m_pumpGpio, LOW);
 }
 
-void Pump::startPuls() noexcept
+void Pump::startPuls(bool onePuls) noexcept
 {
+    m_onePulsFlag = onePuls;
     digitalWrite(m_pumpGpio, HIGH);
     xTimerStart(m_onTimer, 0);
 }
@@ -34,6 +35,11 @@ void Pump::off() noexcept
     if (xTimerIsTimerActive(m_onTimer))
     {
         xTimerStop(m_onTimer, 0);
+    }
+
+    if (xTimerIsTimerActive(m_offTimer))
+    {
+        xTimerStop(m_offTimer, 0);
     }
 
     utils::Message message
@@ -55,6 +61,21 @@ void Pump::timerOnHandler(void* pumpPtr) noexcept
 {
     auto pump = reinterpret_cast<Pump*>(pvTimerGetTimerID(pumpPtr));
     pump->off();
+    pump->startCountOffTime();
+}
+
+void timerOffHandler(void* pumpPtr) noexcept
+{
+    auto pump = reinterpret_cast<Pump*>(pvTimerGetTimerID(pumpPtr));
+    pump->startPuls(false);
+}
+
+void Pump::startCountOffTime() noexcept
+{
+    if (!m_onePulsFlag)
+    {
+        xTimerStart(m_offTimer, 0);
+    }
 }
 
 }
