@@ -2,6 +2,9 @@
 #include <Arduino.h>
 #include <Message.hpp>
 #include <iostream>
+#include <utility>
+#include <asserts.hpp>
+
 
 namespace device
 {
@@ -10,6 +13,11 @@ Pump::Pump(uint16_t serviceId, gpio_num_t pin, xQueueHandle messageQueue, uint16
     m_serviceId(serviceId), m_pumpGpio(pin), m_messageQueue(messageQueue) 
 {
     m_onTimer = xTimerCreate("PumpOnTimer", timeOn / portTICK_PERIOD_MS, pdFALSE, this, timerOnHandler);
+    utils::assert_null(m_onTimer, "Pump on timer was not create");
+    
+    m_offTimer = xTimerCreate("PumpOffTimer", 1000 / portTICK_PERIOD_MS, pdFALSE, this, timerOffHandler);
+    utils::assert_null(m_onTimer, "Pump off timer was not create");
+    
     pinMode(m_pumpGpio, OUTPUT);
     digitalWrite(m_pumpGpio, LOW);
 }

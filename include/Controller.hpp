@@ -21,6 +21,13 @@ enum class Devices
     Voltage
 };
 
+enum class ButtonSignals
+{
+    Click,
+    DoubleClick,
+    Hold
+};
+
 class Controller
 {
    public:
@@ -39,6 +46,18 @@ class Controller
    private:
     void handleButtonMessage(utils::Message const& message) noexcept; 
 
+    void handleClickEvent() noexcept;
+
+    void handleDoubleClickEvent() noexcept;
+
+    void handleHoldClickEvent() noexcept;
+
+    void handleSpeedSensorMessage(utils::Message const& message) noexcept;
+
+    void handleOiling() noexcept;
+
+    void handlePumping() noexcept;
+
    private:
     xQueueHandle m_messageQueue;
     device::Storage m_storage; 
@@ -49,4 +68,6 @@ class Controller
     sensor::Volatage m_voltageSensor;
     device::Server m_server;
     device::Mode m_previosMode;
+    xTimerHandle m_pump1TimerOff;
+    xTimerHandle m_pump2TimerOff;
 };

@@ -50,75 +50,16 @@ void Controller::run() noexcept
 
 void Controller::handleButtonMessage(utils::Message const& message) noexcept
 {
-    switch (message.data[0])
+    switch (static_cast<ButtonSignals>(message.data[0]))
     {
-    case 0:         /// <<- click
-        switch (m_storage.mode)
-        {
-        case device::Mode::Oiling:
-            m_storage.mode = device::Mode::OilingRain;
-            m_storage.write(m_storage.mode, device::Parameter::mode);
-            break;
-
-        case device::Mode::OilingRain:
-            m_storage.mode = device::Mode::Oiling;
-            m_storage.write(m_storage.mode, device::Parameter::mode);
-            break;
-
-        case device::Mode::PumpingOn:
-            m_storage.mode = device::Mode::PumpingOff;
-            break;
-        
-        case device::Mode::PumpingOff:
-            m_storage.mode = device::Mode::PumpingOn;
-            break;
-
-        case device::Mode::ForsedPumpingOn:
-            m_storage.mode = device::Mode::PumpingOff;
-            break;
-
-        case device::Mode::ForsedPumpingOff:
-            m_storage.mode = device::Mode::PumpingOn;
-            break;
-        }
+    case ButtonSignals::Click:      
+        handleClickEvent();
         break;
-    case 1:         /// <<- double click
-        switch (m_storage.mode)
-        {
-        case device::Mode::Off:
-        case device::Mode::ForsedPumpingOn:
-        case device::Mode::ForsedPumpingOff:
-        case device::Mode::Oiling:
-        case device::Mode::OilingRain:
-            m_storage.mode = device::Mode::PumpingOff;
-            m_storage.write(m_storage.mode, device::Parameter::mode);
-            break;
-
-        case device::Mode::PumpingOn:
-        case device::Mode::PumpingOff:
-            m_storage.mode = device::Mode::Oiling;
-            m_storage.write(m_storage.mode, device::Parameter::mode);
-            break;
-        }
+    case ButtonSignals::DoubleClick:  
+        handleDoubleClickEvent();
         break;
-    case 2:         /// <<- hold click
-        switch (m_storage.mode)
-        {
-        case device::Mode::PumpingOff:
-        case device::Mode::PumpingOn:
-        case device::Mode::Oiling:
-        case device::Mode::OilingRain:
-            m_storage.mode = device::Mode::ForsedPumpingOff;
-            m_storage.write(m_storage.mode, device::Parameter::mode);
-            break;
-        case device::Mode::ForsedPumpingOn:
-        case device::Mode::ForsedPumpingOff:
-            m_storage.mode = device::Mode::Off;
-            break;
-        case device::Mode::Off:
-            m_storage.mode = device::Mode::Oiling;
-            break;
-        }
+    case ButtonSignals::Hold:         
+        handleHoldClickEvent();
         break;
     }
 }
@@ -146,3 +87,156 @@ void Controller::voltageTask(void* voltageSensorPtr) noexcept
     auto voltageSensor = reinterpret_cast<sensor::Volatage*>(voltageSensorPtr);
     voltageSensor->run();
 }
+
+void Controller::handleClickEvent() noexcept
+{
+    switch (m_storage.mode)
+    {
+    case device::Mode::Off:
+        m_storage.mode = device::Mode::Oiling;
+        break;
+
+    case device::Mode::PumpingOn:
+        m_storage.mode = device::Mode::PumpingOff;
+        break;
+
+    case device::Mode::PumpingOff:
+        m_storage.mode = device::Mode::PumpingOn;
+        break;
+
+    case device::Mode::Oiling:
+        m_storage.mode = device::Mode::OilingRain;
+        break;
+
+    case device::Mode::OilingRain:
+        m_storage.mode = device::Mode::Oiling;
+        break;
+
+    case device::Mode::ForsedPumpingOn:
+        m_storage.mode = device::Mode::ForsedPumpingOff;
+        break;
+
+    case device::Mode::ForsedPumpingOff :
+        m_storage.mode = device::Mode::ForsedPumpingOn;
+        break;
+    }
+    m_storage.write(m_storage.mode, device::Parameter::mode);
+}
+
+void Controller::handleDoubleClickEvent() noexcept
+{
+    switch (m_storage.mode)
+    {
+    case device::Mode::Off:
+    case device::Mode::Oiling:
+    case device::Mode::OilingRain:
+    case device::Mode::ForsedPumpingOn:
+    case device::Mode::ForsedPumpingOff:
+        m_storage.mode = device::Mode::PumpingOff;
+        break;
+
+    case device::Mode::PumpingOn:
+    case device::Mode::PumpingOff:
+        m_storage.mode = device::Mode::Oiling;
+        break;
+    }    
+    m_storage.write(m_storage.mode, device::Parameter::mode);
+}
+
+void Controller::handleHoldClickEvent() noexcept
+{
+    switch (m_storage.mode)
+    {
+    case device::Mode::ForsedPumpingOn:
+    case device::Mode::ForsedPumpingOff:
+        m_storage.mode = device::Mode::Off;
+        break;
+    case device::Mode::Off:
+        m_storage.mode = device::Mode::Oiling;
+        break;
+    case device::Mode::Oiling:
+    case device::Mode::OilingRain:
+    case device::Mode::PumpingOn:
+    case device::Mode::PumpingOff:
+        m_storage.mode = device::Mode::ForsedPumpingOff;
+        break;
+    }    
+    m_storage.write(m_storage.mode, device::Parameter::mode);
+}
+
+void Controller::handleSpeedSensorMessage(utils::Message const& message) noexcept
+{
+    m_storage.speed = message.data[0];
+
+    switch (m_storage.mode)
+    {
+    case device::Mode::Oiling:
+        m_storage.actualDistancePump1 += message.data[1];
+        m_storage.actualDistancePump2 += message.data[1];
+        handleOiling();
+        break;
+    case device::Mode::OilingRain:
+        m_storage.actualDistancePump1 += message.data[1] * m_storage.rainCoef;
+        m_storage.actualDistancePump2 += message.data[1] * m_storage.rainCoef;
+        handleOiling();
+        break;
+
+    case device::Mode::PumpingOn:
+
+        break;
+
+    case device::Mode::PumpingOff:
+
+        break;
+
+    case device::Mode::ForsedPumpingOn:
+
+        break;
+
+    case device::Mode::ForsedPumpingOff:
+
+        break;
+
+    case device::Mode::Off:
+
+        break;
+    }
+
+}
+
+void Controller::handleOiling() noexcept
+{
+    if (m_storage.speed < m_storage.minSpeedOiling || m_storage.speed > m_storage.maxSpeedOiling)
+    {
+        return;
+    }
+
+    if (m_storage.speed > m_storage.maxTownSpeed)
+    {
+        if (m_storage.actualDistancePump1 > m_storage.intervalRoadPump1)
+        {
+            m_storage.actualDistancePump1 = 0;
+            m_pump1.startPuls();
+        }
+        if (m_storage.actualDistancePump2 > m_storage.intervalRoadPump2)
+        {
+            m_storage.actualDistancePump2 = 0;
+            m_pump1.startPuls();
+        }
+    }
+    else
+    {
+        if (m_storage.actualDistancePump1 > m_storage.intervalTownPump1)
+        {
+            m_storage.actualDistancePump1 = 0;
+            m_pump1.startPuls();
+        }
+        if (m_storage.actualDistancePump2 > m_storage.intervalTownPump2)
+        {
+            m_storage.actualDistancePump2 = 0;
+            m_pump1.startPuls();
+        }
+    }
+
+}
+

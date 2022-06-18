@@ -18,17 +18,22 @@ class Pump
     void startPuls() noexcept;
 
     void changeOnTime(uint16_t timeOn) noexcept;
+    void changeOffTime(uint16_t timeOn) noexcept;
 
     void off() noexcept;
 
    private:
     static void timerOnHandler(void* pumpPtr) noexcept;
 
+    static void timerOffHandler(void* pumpPtr) noexcept;
+
    private: 
     uint16_t const m_serviceId;
     gpio_num_t const m_pumpGpio;
+    uint16_t m_pulsCounter;
     xQueueHandle m_messageQueue;
     xTimerHandle m_onTimer;
+    xTimerHandle m_offTimer;
 };
 
 }
