@@ -47,7 +47,7 @@ struct Storage
    public:
     Mode mode{Mode::Off};
     uint16_t numberOfImpulsByResolution{12};            
-    uint16_t weelCircle{2040};
+    uint16_t weelCircle{2040};// mm
 
     uint16_t maxTownSpeed{80};            
     uint16_t minSpeedOiling{20};             
@@ -68,6 +68,7 @@ struct Storage
     uint16_t pumpingImpulsInterval{1000};
     uint16_t durationImpuls{500};
     uint16_t numberOfImpulsInPumping{60};
+    uint16_t impulsCounter{0};
 
     uint16_t oilImpuls{0};
     uint16_t maxNumOfImpuls{0};

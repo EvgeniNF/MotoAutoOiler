@@ -1,26 +1,30 @@
 #include "Controller.hpp"
 
 #include <iostream>
+#include <asserts.hpp>
 
 Controller::Controller()
 : m_messageQueue(xQueueCreate(30, sizeof(utils::Message))),
   m_storage(),
-  m_pump1(0, config::PUMP_1, m_messageQueue, m_storage.durationImpuls),
-  m_pump2(1, config::PUMP_2, m_messageQueue, m_storage.durationImpuls),
+  m_pump1(0, config::PUMP_1, m_messageQueue, m_storage.durationImpuls, m_storage.pumpingImpulsInterval),
+  m_pump2(1, config::PUMP_2, m_messageQueue, m_storage.durationImpuls, m_storage.pumpingImpulsInterval),
   m_speedSensor(config::SPEED_SENSOR, m_messageQueue, 2, m_storage.numberOfImpulsByResolution, m_storage.weelCircle),
   m_button(3, m_messageQueue, config::BUTTON),
   m_voltageSensor(4, m_messageQueue, config::VOLTAGE_SENSOR, {0, 15})  
 {
-    xTaskCreate(speedTask, "Task.SpeedSensor", 4000, &m_speedSensor, 1, NULL);
-    xTaskCreate(buttonTask, "Task.Button", 4000, &m_button, 1, NULL);
-    xTaskCreate(voltageTask, "Task.VoltageSensor", 4000, &m_voltageSensor, 1, NULL);
-    //xTaskCreate(serverTask, "Task.Server", 8000, &m_server, 1, NULL);
+    xTaskHandle handleSpeedTask;
+    xTaskCreate(speedTask, "Task.SpeedSensor", 4000, &m_speedSensor, 1, &handleSpeedTask);
+    utils::assert_null(handleSpeedTask, "Speed task is null");
+    xTaskHandle handleButtonTask;
+    xTaskCreate(buttonTask, "Task.Button", 4000, &m_button, 1, &handleButtonTask);
+    utils::assert_null(handleButtonTask, "Button task is null");
+    xTaskHandle handleVoltageTask;
+    xTaskCreate(voltageTask, "Task.VoltageSensor", 4000, &m_voltageSensor, 1, &handleVoltageTask);
+    utils::assert_null(handleVoltageTask, "Voltage sensor task is null");
 }
 
 void Controller::run() noexcept
 {
-    m_pump1.startPuls();
-    m_pump2.startPuls();
     while (true)
     {
         utils::Message message;
@@ -240,3 +244,20 @@ void Controller::handleOiling() noexcept
 
 }
 
+void Controller::handlePumping() noexcept
+{
+    switch (m_storage.mode)
+    {
+    case device::Mode::PumpingOn:
+        
+        break;
+    case device::Mode::PumpingOff:
+        break;
+    case device::Mode::ForsedPumpingOn:
+        break;
+    case device::Mode::ForsedPumpingOff:
+        break;
+    default:
+        break;
+    }
+}

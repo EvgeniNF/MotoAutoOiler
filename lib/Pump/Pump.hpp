@@ -11,7 +11,7 @@ namespace device
 class Pump
 {
    public:
-    Pump(uint16_t serviceId, gpio_num_t pin, xQueueHandle messageQueue, uint16_t timeOn);
+    Pump(uint16_t serviceId, gpio_num_t pin, xQueueHandle messageQueue, uint16_t timeOn, uint16_t timeOff);
     ~Pump() = default;
 
    public:
@@ -25,6 +25,8 @@ class Pump
 
     void off() noexcept;
 
+    void sendMessage() noexcept;
+
    private:
     static void timerOnHandler(void* pumpPtr) noexcept;
 
@@ -37,6 +39,7 @@ class Pump
     xTimerHandle m_onTimer;
     xTimerHandle m_offTimer;
     bool m_onePulsFlag = false;
+    bool m_state = false;
 };
 
 }
