@@ -14,7 +14,7 @@ class Timer : protected Callback
     enum Type : UBaseType_t { one_shot, reloaded};
 
    public: 
-    Timer(uint16_t period, std::function<void()> cbFunction, Type type=Type::reloaded, const char* name="");
+    Timer(uint16_t period, std::function<void()> cbFunction, Type type=Type::one_shot, const char* name="");
     
     ~Timer();
     

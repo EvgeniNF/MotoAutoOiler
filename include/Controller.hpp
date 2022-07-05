@@ -14,11 +14,11 @@
 
 enum class Devices
 {
-    Pump1,
-    Pump2,
+    Pump,
     SpeedSensor,
     Button,
-    Voltage
+    Voltage,
+    Storage
 };
 
 enum class ButtonSignals
@@ -45,24 +45,20 @@ class Controller
 
    private:
     void handleButtonMessage(utils::Message const& message) noexcept; 
-
     void handleClickEvent() noexcept;
-
     void handleDoubleClickEvent() noexcept;
-
     void handleHoldClickEvent() noexcept;
-
     void handleSpeedSensorMessage(utils::Message const& message) noexcept;
-
     void handleOiling() noexcept;
-
     void handlePumping() noexcept;
+    void handleForsedPumping() noexcept;
+    void handlePumpControl() noexcept;
+    void handleCountPuls() noexcept;
 
    private:
     xQueueHandle m_messageQueue;
-    device::Storage m_storage; 
-    device::Pump m_pump1;
-    device::Pump m_pump2;
+    device::Storage m_storage;
+    device::Pumps m_pumps; 
     sensor::Speed m_speedSensor;
     Button m_button;
     sensor::Volatage m_voltageSensor;

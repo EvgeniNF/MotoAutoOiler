@@ -4,87 +4,95 @@
 #include <iostream>
 #include <utility>
 #include <asserts.hpp>
-
+#include <Timer.hpp>
 
 namespace device
 {
 
-Pump::Pump(uint16_t serviceId, gpio_num_t pin, xQueueHandle messageQueue, uint16_t timeOn, uint16_t timeOff) :
-    m_serviceId(serviceId), m_pumpGpio(pin), m_messageQueue(messageQueue) 
-{
-    m_onTimer = xTimerCreate("PumpOnTimer", timeOn / portTICK_PERIOD_MS, pdFALSE, this, timerOnHandler);
-    utils::assert_null(m_onTimer, "Pump on timer was not create");
-    
-    m_offTimer = xTimerCreate("PumpOffTimer", timeOff / portTICK_PERIOD_MS, pdFALSE, this, timerOffHandler);
-    utils::assert_null(m_onTimer, "Pump off timer was not create");
+Pumps::Pumps(uint16_t id, uint16_t onTime, uint16_t offTime, gpio_num_t pump1, gpio_num_t pump2, xQueueHandle m_messageHandler) :
+m_id(id), m_messageHandler(m_messageHandler), m_pump1(pump1), m_pump2(pump2),
+m_timerOn1(onTime, std::bind(&Pumps::callbackOn1, this)),
+m_timerOn2(onTime, std::bind(&Pumps::callbackOn2, this)),
+m_timerOnAll(onTime, std::bind(&Pumps::callbackAllOn, this)),
+m_timerOffAll(offTime, std::bind(&Pumps::callbackOffAll, this)) {}
 
-    pinMode(m_pumpGpio, OUTPUT);
-    digitalWrite(m_pumpGpio, LOW);
-}
-
-void Pump::startPuls(bool onePuls) noexcept
-{
-    m_state = true;
-    m_onePulsFlag = onePuls;
-    digitalWrite(m_pumpGpio, HIGH);
-    xTimerStart(m_onTimer, 0);
-}
-
-void Pump::off() noexcept
-{
-    digitalWrite(m_pumpGpio, LOW);
-    if (xTimerIsTimerActive(m_onTimer))
-    {
-        xTimerStop(m_onTimer, 0);
-    }
-
-    if (xTimerIsTimerActive(m_offTimer))
-    {
-        xTimerStop(m_offTimer, 0);
-    }
-}
-
-void Pump::sendMessage() noexcept
-{
-    utils::Message message
-    {
-        .serviceId = m_serviceId,
-        .data = {0},
+void Pumps::callbackOn1() noexcept {
+    offPump1();
+    utils::Message message {
+        .serviceId = m_id,
+        .data = {1},
         .size = 1
     };
-    xQueueSendFromISR(m_messageQueue, &message, 0);
+    xQueueSend(m_messageHandler, &message, 0);
+    m_runningFlag = false;
 }
 
-void Pump::changeOnTime(uint16_t timeOn) noexcept
-{
-    off();
-    xTimerChangePeriod(m_onTimer, timeOn / portTICK_PERIOD_MS, 0);
+void Pumps::callbackOn2() noexcept {
+    offPump2();
+    utils::Message message {
+        .serviceId = m_id,
+        .data = {2},
+        .size = 1
+    };
+    xQueueSend(m_messageHandler, &message, 0);
+    m_runningFlag = false;
 }
 
-void Pump::timerOnHandler(void* pumpPtr) noexcept
-{
-    auto pump = reinterpret_cast<Pump*>(pvTimerGetTimerID(pumpPtr));
-    pump->off();
-    pump->startCountOffTime();
-    pump->sendMessage();
+void Pumps::callbackAllOn() noexcept {
+    offPump1();
+    offPump2();
+    utils::Message message {
+        .serviceId = m_id,
+        .data = {3},
+        .size = 1
+    };
+    xQueueSend(m_messageHandler, &message, 0);
+    m_timerOffAll.start();
 }
 
-void Pump::timerOffHandler(void* pumpPtr) noexcept
-{
-    auto pump = reinterpret_cast<Pump*>(pvTimerGetTimerID(pumpPtr));
-    pump->startPuls(false);
+void Pumps::callbackOffAll() noexcept {
+    startPumping();
 }
 
-void Pump::startCountOffTime() noexcept
-{
-    if (!m_onePulsFlag)
-    {
-        xTimerStart(m_offTimer, 0);
-    } 
-    else 
-    {
-        m_state = false;
-    }
+void Pumps::offPump1() const noexcept {
+    digitalWrite(m_pump1, false);
+}
+
+void Pumps::offPump2() const noexcept {
+    digitalWrite(m_pump2, false);
+}
+
+void Pumps::pulsPump1() noexcept {
+    digitalWrite(m_pump1, true);
+    m_timerOn1.start();
+    m_runningFlag = true;
+}
+
+void Pumps::pulsPump2() noexcept {
+    digitalWrite(m_pump2, true);
+    m_timerOn2.start();
+    m_runningFlag = true;
+}
+
+void Pumps::startPumping() noexcept {
+    digitalWrite(m_pump1, true);
+    digitalWrite(m_pump2, true);
+    m_timerOnAll.start();
+    m_runningFlag = true;
+}
+
+void Pumps::stop() noexcept {
+    m_timerOn1.stop();
+    m_timerOn2.stop();
+    m_timerOnAll.stop();
+    m_timerOffAll.stop();
+    offPump1();
+    offPump2(); 
+    m_runningFlag = false;
+}
+
+bool Pumps::isRunning() const noexcept {
+    return m_runningFlag;
 }
 
 }

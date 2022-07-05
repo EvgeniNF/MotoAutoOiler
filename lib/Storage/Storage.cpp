@@ -73,66 +73,66 @@ void Storage::write(Mode value, Parameter const parameter) noexcept
 
 void Storage::write(uint16_t value, Parameter const parameter) noexcept
 {
-    switch (parameter)
-    {
-    case Parameter::numberOfImpulsByResolution:
-        numberOfImpulsByResolution = value;
-        EEPROM.writeShort(adresses::numberOfImpulsByResolution, numberOfImpulsByResolution);
-        break;
-    case Parameter::weelCircle:
-        weelCircle = value;
-        EEPROM.writeShort(adresses::weelCircle, weelCircle);
-        break;
-    case Parameter::maxTownSpeed:
-        maxTownSpeed = value;
-        EEPROM.writeShort(adresses::maxTownSpeed, maxTownSpeed);
-        break;
-    case Parameter::minSpeedOiling:
-        minSpeedOiling = value;
-        EEPROM.writeShort(adresses::minSpeedOiling, minSpeedOiling);
-        break;
-    case Parameter::maxSpeedOiling:
-        maxSpeedOiling = value;
-        EEPROM.writeShort(adresses::maxSpeedOiling, maxSpeedOiling);
-        break;
-    case Parameter::intervalTownPump1:
-        intervalTownPump1 = value;
-        EEPROM.writeShort(adresses::intervalTownPump1, intervalTownPump1);
-        break; 
-    case Parameter::intervalTownPump2:
-        intervalTownPump2 = value;
-        EEPROM.writeShort(adresses::intervalTownPump2, intervalTownPump2);
-        break; 
-    case Parameter::intervalRoadPump1:
-        intervalRoadPump1 = value;
-        EEPROM.writeShort(adresses::intervalRoadPump1, intervalRoadPump1);
-        break; 
-    case Parameter::intervalRoadPump2:
-        intervalRoadPump2 = value;
-        EEPROM.writeShort(adresses::intervalRoadPump2, intervalRoadPump2);
-        break; 
-    case Parameter::pumpingImpulsInterval:
-        pumpingImpulsInterval = value;
-        EEPROM.writeShort(adresses::pumpingImpulsInterval, pumpingImpulsInterval);
-        break;    
-    case Parameter::durationImpuls:
-        durationImpuls = value;
-        EEPROM.writeShort(adresses::durationImpuls, durationImpuls);
-        break;  
-    case Parameter::numberOfImpulsInPumping:
-        numberOfImpulsInPumping = value;
-        EEPROM.writeShort(adresses::numberOfImpulsInPumping, numberOfImpulsInPumping);
-        break;  
-    case Parameter::oilImpuls:
-        oilImpuls = value;
-        EEPROM.writeShort(adresses::oilImpuls, oilImpuls);
-        break;  
-    case Parameter::maxNumOfImpuls:
-        maxNumOfImpuls = value;
-        EEPROM.writeShort(adresses::maxNumOfimpuls, maxNumOfImpuls);
-        break;  
-    }
-    EEPROM.commit();
+    // switch (parameter)
+    // {
+    // case Parameter::numberOfImpulsByResolution:
+    //     numberOfImpulsByResolution = value;
+    //     EEPROM.writeShort(adresses::numberOfImpulsByResolution, numberOfImpulsByResolution);
+    //     break;
+    // case Parameter::weelCircle:
+    //     weelCircle = value;
+    //     EEPROM.writeShort(adresses::weelCircle, weelCircle);
+    //     break;
+    // case Parameter::maxTownSpeed:
+    //     maxTownSpeed = value;
+    //     EEPROM.writeShort(adresses::maxTownSpeed, maxTownSpeed);
+    //     break;
+    // case Parameter::minSpeedOiling:
+    //     minSpeedOiling = value;
+    //     EEPROM.writeShort(adresses::minSpeedOiling, minSpeedOiling);
+    //     break;
+    // case Parameter::maxSpeedOiling:
+    //     maxSpeedOiling = value;
+    //     EEPROM.writeShort(adresses::maxSpeedOiling, maxSpeedOiling);
+    //     break;
+    // case Parameter::intervalTownPump1:
+    //     intervalTownPump1 = value;
+    //     EEPROM.writeShort(adresses::intervalTownPump1, intervalTownPump1);
+    //     break; 
+    // case Parameter::intervalTownPump2:
+    //     intervalTownPump2 = value;
+    //     EEPROM.writeShort(adresses::intervalTownPump2, intervalTownPump2);
+    //     break; 
+    // case Parameter::intervalRoadPump1:
+    //     intervalRoadPump1 = value;
+    //     EEPROM.writeShort(adresses::intervalRoadPump1, intervalRoadPump1);
+    //     break; 
+    // case Parameter::intervalRoadPump2:
+    //     intervalRoadPump2 = value;
+    //     EEPROM.writeShort(adresses::intervalRoadPump2, intervalRoadPump2);
+    //     break; 
+    // case Parameter::pumpingImpulsInterval:
+    //     pumpingImpulsInterval = value;
+    //     EEPROM.writeShort(adresses::pumpingImpulsInterval, pumpingImpulsInterval);
+    //     break;    
+    // case Parameter::durationImpuls:
+    //     durationImpuls = value;
+    //     EEPROM.writeShort(adresses::durationImpuls, durationImpuls);
+    //     break;  
+    // case Parameter::numberOfImpulsInPumping:
+    //     numberOfImpulsInPumping = value;
+    //     EEPROM.writeShort(adresses::numberOfImpulsInPumping, numberOfImpulsInPumping);
+    //     break;  
+    // case Parameter::oilImpuls:
+    //     oilImpuls = value;
+    //     EEPROM.writeShort(adresses::oilImpuls, oilImpuls);
+    //     break;  
+    // case Parameter::maxNumOfImpuls:
+    //     maxNumOfImpuls = value;
+    //     EEPROM.writeShort(adresses::maxNumOfimpuls, maxNumOfImpuls);
+    //     break;  
+    // }
+    // EEPROM.commit();
 }
 
 void Storage::write(float value, Parameter const parameter) noexcept
@@ -145,19 +145,19 @@ void Storage::write(float value, Parameter const parameter) noexcept
 
 void Storage::write(String value, Parameter const parameter) noexcept
 {
-    uint8_t startAddr;
-    switch (parameter)
-    {
-    case Parameter::password:
-        password = value;
-        write(password, adresses::password);
-        break;
+    // uint8_t startAddr;
+    // switch (parameter)
+    // {
+    // case Parameter::password:
+    //     password = value;
+    //     write(password, adresses::password);
+    //     break;
 
-    case Parameter::accessPointName:
-        accessPointName = value;
-        write(accessPointName, adresses::nameAp);
-        break;
-    }
+    // case Parameter::accessPointName:
+    //     accessPointName = value;
+    //     write(accessPointName, adresses::nameAp);
+    //     break;
+    // }
 }
 
 void Storage::write(String value, uint8_t address) noexcept

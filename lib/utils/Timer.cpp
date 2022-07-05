@@ -34,7 +34,7 @@ void Timer::start() const noexcept
 
 void Timer::stop() const noexcept
 {
-    if (not xTimerIsTimerActive(m_timerHandler))
+    if (xTimerIsTimerActive(m_timerHandler))
     {
         xTimerStop(m_timerHandler, 0);
     }

@@ -11,7 +11,7 @@ void Callback::timerFunction(void* callbackPtr) noexcept
     functor->call();
 }   
 
-static void taskFunction(void* callbackPtr) noexcept 
+void Callback::taskFunction(void* callbackPtr) noexcept 
 {
     auto functor = reinterpret_cast<struct Callback*>(callbackPtr);
     functor->call();
